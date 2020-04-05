@@ -1,6 +1,6 @@
 import json
 import logging
-
+import os
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (CommandHandler, ConversationHandler, Filters,
                           MessageHandler, Updater)
@@ -13,6 +13,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 SELECTION = str()
+
+TOKEN = os.environ.get('TOKEN')
 
 def queue(update, context):
     status = ['downloading', 'completed', 'paused', 'active', 'inactive', 'resumed']
@@ -39,9 +41,7 @@ def error(update, context):
     logger.warning(f'Update {update} caused error {context.error}', update, context.error)
 
 def main():
-    with open("auth.json", "r") as f:
-        TOKEN = json.loads(f.read())
-        TOKEN = TOKEN['token']
+    PORT = int(os.environ.get('PORT', '8443'))
     updater = Updater(TOKEN, use_context=True)
 
     dp = updater.dispatcher
@@ -58,7 +58,10 @@ def main():
     dp.add_handler(queue_handler)
     dp.add_error_handler(error)
 
-    updater.start_polling()
+    updater.start_webhook(listen='0.0.0.0', 
+                        port=PORT,
+                        url_path=TOKEN)
+    updater.bot.set_webhook("https://caleb-qbittorrent.herokuapp.com/" + TOKEN)
     updater.idle()
 
 
