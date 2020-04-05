@@ -7,7 +7,7 @@ def queue(status='downloading'):
     with open(AUTH,"r") as f:
         AUTH = json.loads(f.read())
 
-    client = qbittorrentapi.Client(host=AUTH["host"], port=AUTH["port"])
+    client = qbittorrentapi.Client(host='localhost', port='27122')
 
     try:
         client.auth_log_in()
